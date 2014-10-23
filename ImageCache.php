@@ -39,13 +39,13 @@ class ImageCache extends Component
      * Path to cache folder
      * @var string
      */
-    public $cachePath = '@static/cache';
+    public $cachePath = '@static/ic';
 
     /**
      * URL to cache path
      * @var string
      */
-    public $cacheUrl = '@staticUrl/cache';
+    public $cacheUrl = '@staticUrl/ic';
 
     /**
      * @var bool saving file to cache or generate only
