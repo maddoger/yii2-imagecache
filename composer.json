@@ -1,0 +1,21 @@
+{
+	"name": "maddoger/yii2-imagecache",
+	"type": "yii2-extension",
+	"description": "ImageCache extension for Yii2.",
+	"authors": [
+        {
+            "name": "Vitaliy Syrchikov",
+            "email": "maddoger@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.4.0",
+        "yiisoft/yii2": "*"
+    },
+	"autoload": {
+		"psr-4": {
+			"maddoger\\imagecache\\": ""
+		}
+	}
+}

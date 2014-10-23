@@ -1,0 +1,1 @@
+Yii2 ImageCache by maddoger
