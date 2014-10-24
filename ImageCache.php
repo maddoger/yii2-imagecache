@@ -5,8 +5,13 @@
  */
 
 namespace maddoger\imagecache;
+
 use Yii;
 use yii\base\Component;
+use yii\base\ErrorException;
+use yii\base\InvalidParamException;
+use yii\helpers\ArrayHelper;
+use yii\helpers\FileHelper;
 
 /**
  * ImageCache
@@ -30,12 +35,6 @@ class ImageCache extends Component
     public $staticUrl = '@staticUrl';
 
     /**
-     * Path to protected static files
-     * @var string
-     */
-    public $staticProtectedPath = '@staticProtected';
-
-    /**
      * Path to cache folder
      * @var string
      */
@@ -48,16 +47,126 @@ class ImageCache extends Component
     public $cacheUrl = '@staticUrl/ic';
 
     /**
+     * @var string
+     */
+    public $imageClass = 'maddoger\imagecache\Image';
+
+    /**
      * @var bool saving file to cache or generate only
      */
-    public $saveFile = true;
+    public $actionSavesFile = true;
 
-    public $presets = [
+    /**
+     * @var bool Is need to generate file when getUrl function will be called?
+     */
+    public $generateWithUrl = true;
 
-    ];
+    /**
+     * @var array known presets
+     */
+    public $presets = [];
 
-    public function getRawImageByPreset($preset, $image_path)
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {   
+        $this->staticPath = Yii::getAlias($this->staticPath);
+        $this->staticUrl = Yii::getAlias($this->staticUrl); 
+        
+        $this->cachePath = Yii::getAlias($this->cachePath);
+        $this->cacheUrl = Yii::getAlias($this->cacheUrl);
+    }
+
+    /**
+     * Process image and returns it
+     * @param $imagePath
+     * @param $presetName
+     * @return Image
+     */
+    public function getImage($imagePath, $presetName)
     {
+        if (!isset($this->presets[$presetName])) {
+            throw new InvalidParamException('Preset "'.$presetName.'" not exists.');
+        }
 
+        $preset = $this->presets[$presetName];
+        if (!is_array($preset)) {
+            $preset = [$preset];
+        }
+
+        $image = Yii::createObject($this->imageClass);
+        $image->open($imagePath);
+        $image->process($preset);
+        return $image;
+    }
+
+    /**
+     * @param $imagePath
+     * @param $presetName
+     * @return string
+     * @throws ErrorException
+     */
+    public function getUrlByPath($imagePath, $presetName)
+    {
+        $imagePath = FileHelper::normalizePath(Yii::getAlias($imagePath));
+
+        $cacheImageUrl = str_replace(
+            $this->staticPath,
+            $this->cacheUrl.'/'.$presetName,
+            $imagePath
+        );
+
+        //Need to generate file
+        if ($this->generateWithUrl) {
+
+            //Need to save file to cache
+            $cachePath = str_replace(
+                $this->cacheUrl,
+                $this->cachePath,
+                $cacheImageUrl
+            );
+
+            if ((!file_exists($cachePath) || filemtime($cachePath)<filemtime($imagePath)) && file_exists($imagePath)) {
+                $image = $this->getImage($imagePath, $presetName);
+                if (!FileHelper::createDirectory(dirname($cachePath))) {
+                    throw new ErrorException('Directory creation failed.');
+                }
+                //unlink($cachePath);
+                $image->save(
+                    $cachePath,
+                    ArrayHelper::remove($this->presets[$presetName], 'save', [])
+                );
+            }
+        }
+
+        return $cacheImageUrl;
+    }
+
+    /**
+     * @param $imageUrl
+     * @param $presetName
+     * @return string
+     * @throws ErrorException
+     */
+    public function getUrl($imageUrl, $presetName)
+    {
+        $cacheImageUrl = str_replace(
+            $this->staticUrl,
+            $this->cacheUrl.'/'.$presetName,
+            $imageUrl
+        );
+
+        if ($this->generateWithUrl) {
+            $imagePath = str_replace(
+                $this->staticUrl,
+                $this->staticPath,
+                Yii::getAlias($imageUrl)
+            );
+
+            return $this->getUrlByPath($imagePath, $presetName);
+        } else {
+            return $cacheImageUrl;
+        }
     }
 }

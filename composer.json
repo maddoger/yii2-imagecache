@@ -12,7 +12,7 @@
     "require": {
         "php": ">=5.4.0",
         "yiisoft/yii2": "*",
-        "yiisoft/yii2-imagine": "*",
+        "imagine/imagine": "0.5.*",
         "maddoger/yii2-core": "*"
     },
 	"autoload": {
