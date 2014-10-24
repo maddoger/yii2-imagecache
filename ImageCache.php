@@ -72,7 +72,7 @@ class ImageCache extends Component
     public function init()
     {   
         $this->staticPath = Yii::getAlias($this->staticPath);
-        $this->staticUrl = Yii::getAlias($this->staticUrl); 
+        $this->staticUrl = Yii::getAlias($this->staticUrl);
         
         $this->cachePath = Yii::getAlias($this->cachePath);
         $this->cacheUrl = Yii::getAlias($this->cacheUrl);
@@ -94,6 +94,7 @@ class ImageCache extends Component
         if (!is_array($preset)) {
             $preset = [$preset];
         }
+        unset($preset['save']);
 
         $image = Yii::createObject($this->imageClass);
         $image->open($imagePath);
@@ -154,7 +155,7 @@ class ImageCache extends Component
         $cacheImageUrl = str_replace(
             $this->staticUrl,
             $this->cacheUrl.'/'.$presetName,
-            $imageUrl
+            Yii::getAlias($imageUrl)
         );
 
         if ($this->generateWithUrl) {

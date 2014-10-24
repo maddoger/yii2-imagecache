@@ -133,6 +133,10 @@ class Image
         return $this;
     }
 
+    /**
+     * @param $functions
+     * @return $this
+     */
     public function process($functions)
     {
         if (!$this->image) {
@@ -156,6 +160,14 @@ class Image
             }
         }
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        return ($this->image !== null);
     }
 
     /**

@@ -1,0 +1,9 @@
+RewriteEngine On
+
+RedirectMatch 403 /\.
+RedirectMatch 403 /\.htaccess$
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/static/ic/*
+RewriteRule ^(.*)$  imagecache.php [L,QSA]

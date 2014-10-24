@@ -1,29 +1,77 @@
 Yii2 ImageCache by maddoger
 
+#Component:
+
+```
+'imageCache' => [
+    'class' => 'maddoger\imagecache\ImageCache',
+    'generateWithUrl' => false,
+    'actionSavesFile' => false,
+
+    //Avatar
+    'presets' => [
+        '100x100' => [
+            'fit' => [
+                'width' => 100,
+                'height' => 100,
+            ],
+        ],
+        '200x' => [
+            'thumbnail' => [
+                'width' => 200,
+                'height' => 200,
+            ],
+        ],
+    ],
+],
+```
+
+#For server generation
+
+##In controller:
 ```
 public function actions()
     {
         return [
-            'ic' => [
+            'imagecache' => [
                 'class' => 'maddoger\imagecache\ImageAction',
             ],
         ];
     }
 ```
 
-#Идея:
+##In configuration:
 
-##Image
-Класс фотографии с функциями обработки. Он создает, и управляет обработкой.
-То, что может сам, делает сам (включая удобные и быстрые интерфейсы), что не может, пробует сделать через функции Imagine, проверяя их доступность.
+```
+'urlManager' => [
+    ...
+    'rules' => [
+        ...
+        'static/ic/<img:.*?>' => 'site/imagecache',
+        ...
+    ],
+    ...
+],
+```
 
-##ImageCache 
-Класс модуля. Обеспечивает быстрые функции для преобразования фотографии по заданному пресету.
-В себе хранит глобальные пресеты, настройки путей для сохранения файлов, и само сохранение файлов.
-Может создавать из файлов данные (без сохранения для вывода в браузер), может создавать файл и перенаправлять на него.
-Может просто генерировать URL (если используются сторонние генераторы изображений.
-Может работать как с открытыми, так и с закрытыми от публичного доступа файлами.
+##.htaccess
 
-Так же обеспечивает контроллер и действие для генерации изображений.
+```
+RewriteEngine On
 
-ImageCache - прозрачная работа с изображениями в Yii2
+RedirectMatch 403 /\.
+RedirectMatch 403 /\.htaccess$
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/static/ic/*
+RewriteRule ^(.*)$  ../index.php [QSA,L]
+```
+
+#Faster generation
+
+##Standalone php script
+
+Use files from server folder.
+
+For faster generation you may use file in server folder (.htaccess and generator script), or another methods.
