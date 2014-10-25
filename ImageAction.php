@@ -17,7 +17,7 @@ use yii\web\Response;
  *
  * @author Vitaliy Syrchikov <maddoger@gmail.com>
  * @link http://syrchikov.name
- * @package maddoger\imagecache
+ * @package maddoger/yii2-imagecache
  */
 class ImageAction extends Action
 {
