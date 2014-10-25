@@ -6,18 +6,17 @@
 
 namespace maddoger\imagecache;
 
+use Imagine\Image\Box;
+use Imagine\Image\Color;
+use Imagine\Image\ImageInterface;
+use Imagine\Image\ImagineInterface;
+use Imagine\Image\ManipulatorInterface;
+use Imagine\Image\Point;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\base\UnknownMethodException;
 use yii\helpers\ArrayHelper;
-
-use Imagine\Image\ImagineInterface;
-use Imagine\Image\ImageInterface;
-use Imagine\Image\Box;
-use Imagine\Image\ManipulatorInterface;
-use Imagine\Image\Point;
-use Imagine\Image\Color;
 
 /**
  * Image
@@ -56,6 +55,30 @@ class Image
      * @var ImageInterface
      */
     public $image;
+
+    /**
+     * @param $filePath
+     */
+    public function __construct($filePath = null)
+    {
+        if ($filePath) {
+            $this->open($filePath);
+        }
+    }
+
+    /**
+     * @param $filePath
+     * @return $this
+     */
+    public function open($filePath)
+    {
+        if ($this->image) {
+
+            $this->image = null;
+        }
+        $this->image = static::getImagine()->open($filePath);
+        return $this;
+    }
 
     /**
      * Returns the `Imagine` object that supports various image manipulations.
@@ -107,30 +130,6 @@ class Image
             }
         }
         throw new InvalidConfigException("Your system does not support any of these drivers: " . implode(',', (array)static::$driver));
-    }
-
-    /**
-     * @param $filePath
-     */
-    public function __construct($filePath = null)
-    {
-        if ($filePath) {
-            $this->open($filePath);
-        }
-    }
-
-    /**
-     * @param $filePath
-     * @return $this
-     */
-    public function open($filePath)
-    {
-        if ($this->image) {
-
-            $this->image = null;
-        }
-        $this->image = static::getImagine()->open($filePath);
-        return $this;
     }
 
     /**

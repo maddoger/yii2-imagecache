@@ -70,36 +70,39 @@ class ImageCache extends Component
      * @inheritdoc
      */
     public function init()
-    {   
+    {
         $this->staticPath = Yii::getAlias($this->staticPath);
         $this->staticUrl = Yii::getAlias($this->staticUrl);
-        
+
         $this->cachePath = Yii::getAlias($this->cachePath);
         $this->cacheUrl = Yii::getAlias($this->cacheUrl);
     }
 
     /**
-     * Process image and returns it
-     * @param $imagePath
+     * @param $imageUrl
      * @param $presetName
-     * @return Image
+     * @return string
+     * @throws ErrorException
      */
-    public function getImage($imagePath, $presetName)
+    public function getUrl($imageUrl, $presetName)
     {
-        if (!isset($this->presets[$presetName])) {
-            throw new InvalidParamException('Preset "'.$presetName.'" not exists.');
-        }
+        $cacheImageUrl = str_replace(
+            $this->staticUrl,
+            $this->cacheUrl . '/' . $presetName,
+            Yii::getAlias($imageUrl)
+        );
 
-        $preset = $this->presets[$presetName];
-        if (!is_array($preset)) {
-            $preset = [$preset];
-        }
-        unset($preset['save']);
+        if ($this->generateWithUrl) {
+            $imagePath = str_replace(
+                $this->staticUrl,
+                $this->staticPath,
+                Yii::getAlias($imageUrl)
+            );
 
-        $image = Yii::createObject($this->imageClass);
-        $image->open($imagePath);
-        $image->process($preset);
-        return $image;
+            return $this->getUrlByPath($imagePath, $presetName);
+        } else {
+            return $cacheImageUrl;
+        }
     }
 
     /**
@@ -114,7 +117,7 @@ class ImageCache extends Component
 
         $cacheImageUrl = str_replace(
             $this->staticPath,
-            $this->cacheUrl.'/'.$presetName,
+            $this->cacheUrl . '/' . $presetName,
             $imagePath
         );
 
@@ -128,7 +131,7 @@ class ImageCache extends Component
                 $cacheImageUrl
             );
 
-            if ((!file_exists($cachePath) || filemtime($cachePath)<filemtime($imagePath)) && file_exists($imagePath)) {
+            if ((!file_exists($cachePath) || filemtime($cachePath) < filemtime($imagePath)) && file_exists($imagePath)) {
                 $image = $this->getImage($imagePath, $presetName);
                 if (!FileHelper::createDirectory(dirname($cachePath))) {
                     throw new ErrorException('Directory creation failed.');
@@ -145,29 +148,26 @@ class ImageCache extends Component
     }
 
     /**
-     * @param $imageUrl
+     * Process image and returns it
+     * @param $imagePath
      * @param $presetName
-     * @return string
-     * @throws ErrorException
+     * @return Image
      */
-    public function getUrl($imageUrl, $presetName)
+    public function getImage($imagePath, $presetName)
     {
-        $cacheImageUrl = str_replace(
-            $this->staticUrl,
-            $this->cacheUrl.'/'.$presetName,
-            Yii::getAlias($imageUrl)
-        );
-
-        if ($this->generateWithUrl) {
-            $imagePath = str_replace(
-                $this->staticUrl,
-                $this->staticPath,
-                Yii::getAlias($imageUrl)
-            );
-
-            return $this->getUrlByPath($imagePath, $presetName);
-        } else {
-            return $cacheImageUrl;
+        if (!isset($this->presets[$presetName])) {
+            throw new InvalidParamException('Preset "' . $presetName . '" not exists.');
         }
+
+        $preset = $this->presets[$presetName];
+        if (!is_array($preset)) {
+            $preset = [$preset];
+        }
+        unset($preset['save']);
+
+        $image = Yii::createObject($this->imageClass);
+        $image->open($imagePath);
+        $image->process($preset);
+        return $image;
     }
 }

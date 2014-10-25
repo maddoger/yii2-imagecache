@@ -5,6 +5,7 @@
  */
 
 namespace maddoger\imagecache;
+
 use Yii;
 use yii\base\Action;
 use yii\helpers\FileHelper;
@@ -21,19 +22,19 @@ use yii\web\Response;
  */
 class ImageAction extends Action
 {
-    public function run($url=null)
+    public function run($url = null)
     {
         /**
          * @var ImageCache $imageCache
          */
         $imageCache = Yii::$app->get('imageCache');
         $cachedUrl = $url ?: Yii::$app->request->getUrl();
-        $preg = '/^'.preg_quote(Yii::getAlias($imageCache->cacheUrl), '/').'\/(.*?)\/(.*?)\.(.*?)$/';
+        $preg = '/^' . preg_quote(Yii::getAlias($imageCache->cacheUrl), '/') . '\/(.*?)\/(.*?)\.(.*?)$/';
 
         if (preg_match($preg, $cachedUrl, $matches)) {
 
             $presetName = $matches[1];
-            $imagePath = Yii::getAlias($imageCache->staticPath.DIRECTORY_SEPARATOR.$matches[2].'.'.$matches[3]);
+            $imagePath = Yii::getAlias($imageCache->staticPath . DIRECTORY_SEPARATOR . $matches[2] . '.' . $matches[3]);
             $format = strtolower($matches[3]);
             if (file_exists($imagePath)) {
                 try {
@@ -41,7 +42,7 @@ class ImageAction extends Action
                     if ($image && $image->isValid()) {
 
                         if ($imageCache->actionSavesFile) {
-                            $cachedPath = Yii::getAlias($imageCache->cachePath.DIRECTORY_SEPARATOR.$presetName.DIRECTORY_SEPARATOR.$matches[2].'.'.$matches[3]);
+                            $cachedPath = Yii::getAlias($imageCache->cachePath . DIRECTORY_SEPARATOR . $presetName . DIRECTORY_SEPARATOR . $matches[2] . '.' . $matches[3]);
                             //var_dump($cachedPath);
                             FileHelper::createDirectory(dirname($cachedPath));
                             $image->save($cachedPath);
