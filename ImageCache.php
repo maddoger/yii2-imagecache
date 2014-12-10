@@ -52,6 +52,13 @@ class ImageCache extends Component
     public $imageClass = 'maddoger\imagecache\Image';
 
     /**
+     * @var array
+     */
+    public $saveOptions = [
+        'quality' => 100,
+    ];
+
+    /**
      * @var bool saving file to cache or generate only
      */
     public $actionSavesFile = true;
@@ -137,10 +144,14 @@ class ImageCache extends Component
                     throw new ErrorException('Directory creation failed.');
                 }
                 //unlink($cachePath);
+                $preset = $this->presets[$presetName];
+                $saveOptions = ArrayHelper::merge($this->saveOptions, ArrayHelper::remove($preset, 'save', []));
                 $image->save(
                     $cachePath,
-                    ArrayHelper::remove($this->presets[$presetName], 'save', [])
+                    $saveOptions
                 );
+                unset($image);
+                $image = null;
             }
         }
 
@@ -169,5 +180,14 @@ class ImageCache extends Component
         $image->open($imagePath);
         $image->process($preset);
         return $image;
+    }
+
+    /**
+     * @param string $presetName
+     * @return bool
+     */
+    public function hasPreset($presetName)
+    {
+        return isset($this->presets[$presetName]);
     }
 }
