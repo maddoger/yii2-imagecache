@@ -11,7 +11,7 @@
     "require": {
         "yiisoft/yii2": "*",
         "imagine/imagine": "0.5.*",
-        "maddoger/yii2-core": "*"
+        "maddoger/yii2-filebehavior": "*"
     },
     "autoload": {
         "psr-4": {

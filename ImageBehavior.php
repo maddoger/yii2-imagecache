@@ -6,7 +6,7 @@
 
 namespace maddoger\imagecache;
 
-use maddoger\core\file\FileBehavior;
+use maddoger\filebehavior\FileBehavior;
 use Yii;
 use yii\base\InvalidConfigException;
 
