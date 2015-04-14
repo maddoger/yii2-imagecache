@@ -190,4 +190,40 @@ class ImageCache extends Component
     {
         return isset($this->presets[$presetName]);
     }
+
+    /**
+     * Flush all image versions
+     * @param string $imageUrl
+     */
+    public function flushByUrl($imageUrl)
+    {
+        if (empty($imageUrl)) {
+            return;
+        }
+        foreach ($this->presets as $presetName=>$ar)
+        {
+            $cachePath = str_replace(
+                $this->staticUrl,
+                $this->cachePath . '/' . $presetName,
+                Yii::getAlias($imageUrl)
+            );
+
+            try {
+                if (file_exists($cachePath) && is_file($cachePath)) {
+                    unlink($cachePath);
+                }
+            } catch (\Exception $e) {}
+        }
+    }
+
+    /**
+     * Flush all cache
+     */
+    public function flushAll()
+    {
+        $path = Yii::getAlias($this->cachePath);
+        if (is_dir($path)) {
+            FileHelper::removeDirectory($path);
+        }
+    }
 }

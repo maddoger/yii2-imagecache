@@ -28,14 +28,45 @@ class ImageBehavior extends FileBehavior
      */
     public function getImageUrl($attribute, $presetName)
     {
-        $imageCache = Yii::$app->get('imageCache');
-        if (!$imageCache) {
-            throw new InvalidConfigException('ImageCache component must be added to app modules.');
-        }
         $url = $this->owner->{$attribute};
         if (!$url) {
             return null;
         }
-        return $imageCache->getUrl($url, $presetName);
+        return $this->getImageCache()->getUrl($url, $presetName);
+    }
+
+    /**
+     * @return ImageCache
+     * @throws InvalidConfigException
+     */
+    public function getImageCache()
+    {
+        $imageCache = Yii::$app->get('imageCache');
+        if (!$imageCache) {
+            throw new InvalidConfigException('ImageCache component must be added to app modules.');
+        }
+        return $imageCache;
+    }
+
+    /**
+     * Delete old files
+     */
+    protected function deleteFileInternal()
+    {
+        if ($this->oldValue) {
+
+            //Flush cache
+            $this->getImageCache()->flushByUrl($this->oldValue);
+            $filePath = $this->getFilePathFromUrl($this->oldValue);
+
+            try {
+                if (is_file($filePath)) {
+                    unlink($filePath);
+                }
+            } catch (\Exception $e) {
+
+            }
+            $this->oldValue = null;
+        }
     }
 }
